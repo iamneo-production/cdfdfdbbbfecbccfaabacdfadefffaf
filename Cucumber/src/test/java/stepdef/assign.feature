@@ -52,3 +52,44 @@ Feature: Wikipedia Page History
     Given I am on the Wikipedia article page for "Artificial Intelligence"
     When I click on the "View history" link
     Then I should be on the history page for the article "Artificial Intelligence"
+Feature: JSON Placeholder Service Testing
+  As a tester
+  I want to perform basic service-level testing on JSON Placeholder
+  So that I can ensure the API endpoints are functioning correctly
+
+  Scenario: Verify retrieving a specific user
+    When I request the user with ID 1
+    Then the response status code should be 200
+    And the response should contain the username "Bret"
+
+  Scenario: Verify retrieving a list of posts
+    When I request the list of posts
+    Then the response status code should be 200
+    And the response should contain at least 10 posts
+
+  Scenario: Verify retrieving a specific post
+    When I request the post with ID 1
+    Then the response status code should be 200
+    And the response should contain the title "sunt aut facere repellat provident occaecati excepturi optio reprehenderit"
+
+@user
+Feature: User Testing
+  ...
+
+Scenario: Verify user information
+  ...
+
+@posts
+Feature: Posts Testing
+  ...
+
+Scenario: Verify post creation
+  ...
+
+@comments
+Feature: Comments Testing
+  ...
+
+Scenario: Verify comment submission
+  ...
+

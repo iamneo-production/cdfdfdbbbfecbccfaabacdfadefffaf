@@ -87,3 +87,96 @@ public class WikipediaHistorySteps {
         // Implement verification logic to ensure the current page's title matches the expectedArticleTitle
     }
 }
+import io.cucumber.java.en.*;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.hamcrest.Matchers;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class JsonPlaceholderSteps {
+    private Response response;
+
+    @When("I request the user with ID {int}")
+    public void requestUserById(int userId) {
+        response = RestAssured.get("https://jsonplaceholder.typicode.com/users/" + userId);
+    }
+
+    @When("I request the list of posts")
+    public void requestListOfPosts() {
+        response = RestAssured.get("https://jsonplaceholder.typicode.com/posts");
+    }
+
+    @When("I request the post with ID {int}")
+    public void requestPostById(int postId) {
+        response = RestAssured.get("https://jsonplaceholder.typicode.com/posts/" + postId);
+    }
+
+    @Then("the response status code should be {int}")
+    public void verifyStatusCode(int expectedStatusCode) {
+        response.then().statusCode(expectedStatusCode);
+    }
+
+    @Then("the response should contain the username {string}")
+    public void verifyUsername(String expectedUsername) {
+        response.then().body("username", Matchers.equalTo(expectedUsername));
+    }
+
+    @Then("the response should contain at least {int} posts")
+    public void verifyPostCount(int expectedPostCount) {
+        response.then().body("", Matchers.hasSize(Matchers.greaterThanOrEqualTo(expectedPostCount)));
+    }
+
+    @Then("the response should contain the title {string}")
+    public void verifyTitle(String expectedTitle) {
+        response.then().body("title", Matchers.equalTo(expectedTitle));
+    }
+}
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MyStepDefinitions {
+    private static final Logger logger = LoggerFactory.getLogger(MyStepDefinitions.class);
+
+    // ... your step definitions and methods ...
+
+    @Given("I perform an action")
+    public void performAction() {
+        logger.info("Performing an action...");
+        // Your code here
+    }
+}
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import io.cucumber.plugin.ConcurrentEventListener;
+import io.cucumber.plugin.event.*;
+
+public class ExtentReportListener implements ConcurrentEventListener {
+    private ExtentReports extent;
+    private ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+
+    public ExtentReportListener() {
+        ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter("target/extent-report.html");
+        extent = new ExtentReports();
+        extent.attachReporter(htmlReporter);
+    }
+
+    @Override
+    public void setEventPublisher(EventPublisher publisher) {
+        publisher.registerHandlerFor(TestStepFinished.class, this::handleTestStepFinished);
+    }
+
+    private void handleTestStepFinished(TestStepFinished event) {
+        if (event.getTestStep() instanceof PickleStepTestStep) {
+            PickleStepTestStep testStep = (PickleStepTestStep) event.getTestStep();
+            String stepName = testStep.getStep().getText();
+            if (event.getResult().getStatus() == Result.Type.PASSED) {
+                test.get().pass(stepName);
+            } else if (event.getResult().getStatus() == Result.Type.FAILED) {
+                test.get().fail(stepName);
+            } else {
+                test.get().skip(stepName);
+            }
+        }
+    }
+}

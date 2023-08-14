@@ -1,0 +1,82 @@
+- src
+  - test
+    - java
+      - framework
+        - BrowserType.java
+        - BrowserFactory.java
+        - ConfigReader.java
+      - stepdefinitions
+        - WikipediaArticleSteps.java
+        - WikipediaLinkSteps.java
+        - WikipediaHistorySteps.java
+      - pages
+        - WikipediaArticlePage.java
+        - WikipediaHistoryPage.java
+    - resources
+      - test.properties
+    - features
+      - wikipedia.feature
+package framework;
+
+public enum BrowserType {
+    CHROME,
+    FIREFOX,
+    EDGE,
+    // Add other browser types as needed
+}
+package framework;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import java.util.concurrent.TimeUnit;
+
+public class BrowserFactory {
+    public static WebDriver createWebDriver(BrowserType browserType) {
+        WebDriver driver;
+        switch (browserType) {
+            case CHROME:
+                // Set up ChromeDriver
+                driver = new ChromeDriver();
+                break;
+            case FIREFOX:
+                // Set up FirefoxDriver
+                driver = new FirefoxDriver();
+                break;
+            case EDGE:
+                // Set up EdgeDriver
+                driver = new EdgeDriver();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid browser type");
+        }
+        
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        return driver;
+    }
+}
+package framework;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+public class ConfigReader {
+    private Properties properties;
+
+    public ConfigReader(String filePath) {
+        properties = new Properties();
+        try {
+            FileInputStream fileInputStream = new FileInputStream(filePath);
+            properties.load(fileInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getProperty(String key) {
+        return properties.getProperty(key);
+    }
+}
+browser=CHROME
